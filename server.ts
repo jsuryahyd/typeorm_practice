@@ -1,7 +1,8 @@
 import Express, { Router, Request, Response } from "express";
 import { getConnection } from "typeorm";
 import { User } from "./models/entities/User.entity";
-import formidable from "formidable";
+import formidable, { IncomingForm } from "formidable";
+import { promisify as Promisify } from "util";
 import { UserBio } from "./models/entities/UserBio.entity";
 import { Roles } from "./models/entities/Roles.entity";
 export const server = Express();
@@ -31,7 +32,7 @@ router.get("/user", (req: Request, res: Response) => {
     const queries = req.query;
     const result = await getConnection()
       .getRepository(User)
-      .findAndCount(queries);
+      .findAndCount({where:queries,relations:["userBio","userBio.userRoles"]});
     if (!result) {
       return res.json({ success: false, msg: "no user found" });
     }
@@ -55,7 +56,9 @@ router.post("/user", (req, res) => {
     if (fields.roles) {
       userBio.userRoles = await conn
         .getRepository(Roles)
-        .find({ where: [{ role: fields.roles[0] },{role:fields.roles[1]}] });
+        .find({
+          where: [{ role: fields.roles[0] }, { role: fields.roles[1] }]
+        });
     }
     user.userBio = userBio;
     console.log(user);
@@ -90,4 +93,30 @@ router.patch("/user", (req, res) => {
   });
 });
 
+
+router.delete("/user", async (req: Request, res: Response) => {
+    const form = new IncomingForm();
+    const parseForm = Promisify(form.parse).bind(form);
+    const fields:any = await parseForm(req).catch(err => console.error(err));
+  if(!fields){
+      return res.json({
+          success:false,
+          msg:"Bad Request"
+      })
+  }
+    const repository = await getConnection().getRepository(User);
+    const user =await repository.findOne({where:{id:fields.id},relations:['userBio','userBio.userRoles']}).catch(err=>console.log(err));
+    if(!user) return res.json({
+        success:false,
+        msg:"No user found with id "+fields.id
+    })
+    const whatever = await repository.remove(user).catch(err=>console.error(err));
+  
+  // const whatever = await getConnection().createQueryBuilder("User").
+  
+    res.json({
+       success:true,
+       data:whatever
+    })
+  });
 server.use("/api", router);

@@ -15,6 +15,6 @@ export class User {
   @Column({ default: false })
   verified: boolean;
 
-  @OneToOne(_ => UserBio, userBio => userBio.user, { cascade: true })
+  @OneToOne(_ => UserBio, userBio => userBio.user, { cascade: ['insert','update','remove'] })
   userBio: UserBio;
 }
