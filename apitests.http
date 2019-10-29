@@ -1,0 +1,31 @@
+GET http://192.168.2.34:9000/api/users
+
+###
+GET http://192.168.2.34:9000/api/user
+
+###
+POST http://192.168.2.34:9000/api/user
+Content-Type: application/json
+
+{
+    "email":"suman@jampala.in",
+    "name":"J Suman",
+    "phone":"9485334354293",
+    "dob":"1919-10-29",
+    "address":"309, laskdf as, djlsk l, sdfkslfk l",
+    "roles":[2]
+}
+
+###
+
+PATCH http://192.168.2.34:9000/api/user
+Content-Type: application/json
+
+{
+    "id":5,
+    "email":"suri@babumail.com",
+    "name":"suri babu",
+    "phone":"949999293",
+    "dob":"2014-10-29",
+    "address":"laskdf jl adkfj as, askdjlsk l, sdfkslfkl"
+}
