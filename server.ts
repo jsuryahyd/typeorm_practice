@@ -15,7 +15,10 @@ router.get("/users", (req: Request, res: Response) => {
     if (err) return res.json({ success: false, msg: "Bad Request" });
     const result = await getConnection()
       .getRepository(User)
-      .findAndCount({ relations: ["userBio", "userBio.userRoles"] });
+      .findAndCount({
+        relations: ["userBio", "userBio.userRoles"],
+        order: { id: "ASC" }
+      });
 
     if (!result) {
       return res.json({ success: false, msg: "no user found" });
@@ -32,7 +35,10 @@ router.get("/user", (req: Request, res: Response) => {
     const queries = req.query;
     const result = await getConnection()
       .getRepository(User)
-      .findAndCount({where:queries,relations:["userBio","userBio.userRoles"]});
+      .findAndCount({
+        where: queries,
+        relations: ["userBio", "userBio.userRoles"]
+      });
     if (!result) {
       return res.json({ success: false, msg: "no user found" });
     }
@@ -54,11 +60,15 @@ router.post("/user", (req, res) => {
     userBio.dob = fields.dob as string;
     const conn = getConnection();
     if (fields.roles) {
-      userBio.userRoles = await conn
+      const roles = await conn
         .getRepository(Roles)
         .find({
-          where: [{ role: fields.roles[0] }, { role: fields.roles[1] }]
-        });
+          where: (fields.roles as string[]).map(r => ({
+            role: r
+          }))
+        })
+        .catch(err => console.error(err));
+      userBio.userRoles = roles || [];
     }
     user.userBio = userBio;
     console.log(user);
@@ -93,30 +103,37 @@ router.patch("/user", (req, res) => {
   });
 });
 
-
 router.delete("/user", async (req: Request, res: Response) => {
-    const form = new IncomingForm();
-    const parseForm = Promisify(form.parse).bind(form);
-    const fields:any = await parseForm(req).catch(err => console.error(err));
-  if(!fields){
-      return res.json({
-          success:false,
-          msg:"Bad Request"
-      })
+  const form = new IncomingForm();
+  const parseForm = Promisify(form.parse).bind(form);
+  const fields: any = await parseForm(req).catch(err => console.error(err));
+  if (!fields) {
+    return res.json({
+      success: false,
+      msg: "Bad Request"
+    });
   }
-    const repository = await getConnection().getRepository(User);
-    const user =await repository.findOne({where:{id:fields.id},relations:['userBio','userBio.userRoles']}).catch(err=>console.log(err));
-    if(!user) return res.json({
-        success:false,
-        msg:"No user found with id "+fields.id
+  const repository = await getConnection().getRepository(User);
+  const user = await repository
+    .findOne({
+      where: { id: fields.id },
+      relations: ["userBio", "userBio.userRoles"]
     })
-    const whatever = await repository.remove(user).catch(err=>console.error(err));
-  
+    .catch(err => console.log(err));
+  if (!user)
+    return res.json({
+      success: false,
+      msg: "No user found with id " + fields.id
+    });
+  const whatever = await repository
+    .remove(user)
+    .catch(err => console.error(err));
+
   // const whatever = await getConnection().createQueryBuilder("User").
-  
-    res.json({
-       success:true,
-       data:whatever
-    })
+
+  res.json({
+    success: true,
+    data: whatever
   });
+});
 server.use("/api", router);

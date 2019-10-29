@@ -7,24 +7,33 @@ GET http://192.168.2.34:9000/api/user?id=1
 POST http://192.168.2.34:9000/api/user
 Content-Type: application/json
 
+{
+    "email":"jay@surya.com",
+    "name":"Jaya Surya",
+    "phone":"9484354293",
+    "dob":"2001-10-29",
+    "address":"9, asa lk slaskdf as, djlsk l, sdfkslfk l",
+    "roles":[1,2]
+}
+
+
 # {
-#     "email":"jay@surya.com",
-#     "name":"Jaya Surya",
-#     "phone":"9484354293",
-#     "dob":"2001-10-29",
-#     "address":"9, asa lk slaskdf as, djlsk l, sdfkslfk l",
-#     "roles":[1,2]
+#    "email":"suman@jampala.in",
+#    "name":"J Suman",
+#    "phone":"9485334354293",
+#    "dob":"1919-10-29",
+#    "address":"309, laskdf as, djlsk l, sdfkslfk l",
+#    "roles":[2]
 # }
 
-
-{
-   "email":"suman@jampala.in",
-   "name":"J Suman",
-   "phone":"9485334354293",
-   "dob":"1919-10-29",
-   "address":"309, laskdf as, djlsk l, sdfkslfk l",
-   "roles":[2]
-}
+# {
+#    "email":"sanju@reddy.in",
+#    "name":"Sanjuvardhan J",
+#    "phone":"334354293",
+#    "dob":"2011-10-29",
+#    "address":"39, laskdf as, djlsk l, sdfkslfk l",
+#    "roles":[1]
+# }
 
 
 ###
